@@ -1,30 +1,10 @@
-document.getElementById('send-button').addEventListener('click', function() {
-  const message = document.getElementById('message').value;
+// Xử lý nút Upload
+const uploadButton = document.getElementById('upload-button');
+const responseBox = document.getElementById('response-box');
 
-  if (message.trim() === '') {
-    document.getElementById('response-box').textContent = 'Vui lòng nhập tin nhắn!';
-    return;
-  }
-
-  fetch('https://n8n-TinZ.aipencil.name.vn/webhook/sales_data_tinz', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ message })
-  })
-  .then(response => response.text()) // Đọc phản hồi dưới dạng text
-  .then(data => {
-    document.getElementById('response-box').textContent = data; // Hiển thị phản hồi trong response-box
-    document.getElementById('message').value = ''; // Xóa nội dung tin nhắn
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    document.getElementById('response-box').textContent = 'Không thể kết nối đến webhook.';
-  });
-});
-
-document.getElementById('upload-button').addEventListener('click', function() {
+uploadButton.addEventListener('click', function() {
+  uploadButton.disabled = true;
+  responseBox.textContent = 'Đã gửi webhook...';
   fetch('https://n8n-TinZ.aipencil.name.vn/webhook/sales_data_tinz', {
     method: 'POST',
     headers: {
@@ -32,12 +12,19 @@ document.getElementById('upload-button').addEventListener('click', function() {
     },
     body: JSON.stringify({ message: 'TinZ nhận data' })
   })
-  .then(response => response.text())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.text();
+  })
   .then(data => {
-    document.getElementById('response-box').textContent = data;
+    responseBox.textContent = 'Upload thành công';
+    uploadButton.disabled = false;
   })
   .catch(error => {
     console.error('Error:', error);
-    document.getElementById('response-box').textContent = 'Không thể kết nối đến webhook.';
+    responseBox.textContent = 'Gửi webhook không thành công';
+    uploadButton.disabled = false;
   });
 });
